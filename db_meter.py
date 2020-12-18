@@ -15,10 +15,8 @@ class DBMeter(PMS):
       val_min = 4096
       val_max = 0
       start = utime.ticks_ms()
-      counter = 0
       while utime.ticks_ms() < start + 1:
         val = self.pin()
-        counter += 1
         if val < val_min:
           val_min = val
         if val > val_max:
