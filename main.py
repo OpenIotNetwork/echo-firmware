@@ -51,7 +51,7 @@ else:
     s.send(struct.pack("!HH", int(result_mean * 100), int(result_stdev * 100)))
     led.success(0.5)
 
-    if lora.stats().tx_counter + 1 < config.RESTART_INTERVAL / config.INTERVAL:
+    if lora.stats().tx_counter + 1 < config.RESTART_INTERVAL / (config.INTERVAL + config.SAMPLE_PERIOD + 10): # 10 seconds added for general processing time
         lora.nvram_save()
         machine.deepsleep(config.INTERVAL * 1000)
     else:
