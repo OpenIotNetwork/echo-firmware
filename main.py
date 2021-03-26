@@ -12,8 +12,8 @@ import config
 
 led = LED()
 
+lora = LoRa(mode = LoRa.LORAWAN, region = LoRa.EU868, adr = True)
 
-lora = LoRa(mode = LoRa.LORAWAN, region = LoRa.EU868)
 
 if machine.reset_cause() == machine.DEEPSLEEP_RESET:
     lora.nvram_restore()
@@ -21,7 +21,7 @@ if machine.reset_cause() == machine.DEEPSLEEP_RESET:
 if not lora.has_joined():
     led.transmit()
     try:
-        lora.join(activation = LoRa.OTAA, auth = (ubinascii.unhexlify(config.APP_EUI), ubinascii.unhexlify(config.APP_KEY)), timeout = 10000)
+        lora.join(activation = LoRa.OTAA, auth = (ubinascii.unhexlify(config.APP_EUI), ubinascii.unhexlify(config.APP_KEY)), timeout = 10000, dr = 0)
     except TimeoutError:
         pass
 
