@@ -49,7 +49,7 @@ if not lora.has_joined():
         led.success(0.5)
 
     lora.nvram_save()
-    machine.deepsleep(config.INTERVAL * 1000)
+    machine.deepsleep(int(config.INTERVAL * 1000))
 
 else:
     led.processing()
@@ -65,7 +65,7 @@ else:
 
     if lora.stats().tx_counter + 1 < config.RESTART_INTERVAL / (config.INTERVAL + config.SAMPLE_PERIOD + 10): # 10 seconds added for general processing time
         lora.nvram_save()
-        machine.deepsleep(config.INTERVAL * 1000)
+        machine.deepsleep(int(config.INTERVAL * 1000))
     else:
         lora.nvram_erase()
         machine.reset()
