@@ -4,6 +4,7 @@ PORT = /dev/cu.usbmodemPy9f7f541
 
 upload:
 	rshell -p $(PORT) cp -r *.py /flash
+	rshell -p $(PORT) cp -r uModbus /flash/
 
 reset:
 	rshell -p $(PORT) repl '~' 'import machine' '~' 'machine.reset()' '~'
