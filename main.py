@@ -12,7 +12,6 @@ import config
 
 led = LED()
 
-wdt = machine.WDT(timeout = config.WATCHDOG_TIMEOUT * 1000)
 
 lora = LoRa(mode = LoRa.LORAWAN, region = LoRa.EU868)
 
