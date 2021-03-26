@@ -1,47 +1,43 @@
-from pms import PMS
-import machine
+import time
 import utime
-import math
 import statistics
+import machine
 
-class DBMeter(PMS):
-    pin = None
+INTERVAL = 500
 
-    def __init__(self):
-        super().__init__()
-        self.pin = machine.ADC().channel(pin = "P16", attn = machine.ADC.ATTN_6DB)
+class DBMeter():
+    modbus = None
+    modbus_psu = None
 
-    def get_pp(self):
-      val_min = 4096
-      val_max = 0
-      start = utime.ticks_ms()
-      while utime.ticks_ms() < start + 1:
-        val = self.pin()
-        if val < val_min:
-          val_min = val
-        if val > val_max:
-          val_max = val
-      return val_max - val_min
+    def __init__(self, modbus, modbus_psu):
+        self.modbus = modbus
+        self.modbus_psu = modbus_psu
 
-    def get_avg(self, period):
-        sum = 0
-        for num in range(period):
-            sum += self.get_pp()
-        return sum / period
+    def open(self):
+        self.modbus_psu.hold(False)
+        self.modbus_psu.value(1)
+        time.sleep(3) # Wait for IC to be ready for results
 
-    def process_read(self, period, samples):
+    def close(self):
+        self.modbus_psu.value(0)
+        self.modbus_psu.hold(True)
+
+    def process_read(self, period):
         results = []
-        for num in range(samples):
-            value = self.get_avg(period)
-            results.append(value)
+        now = utime.ticks_ms()
+        stop = now + period
+        while now < stop:
+            now = utime.ticks_ms()
+            results.append(self.modbus.read_holding_registers(0x01, 0x00, 0x01, True)[0] / 10)
+            utime.sleep_ms(INTERVAL - (utime.ticks_ms() - now))
         mean = statistics.mean(results)
         stdev = statistics.stdev(results)
         return (mean, stdev)
 
-    def read(period, samples):
-        meter = DBMeter()
+    def read(modbus, modbus_psu, period):
+        meter = DBMeter(modbus, modbus_psu)
         try:
             meter.open()
-            return meter.process_read(period, samples)
+            return meter.process_read(period)
         finally:
             meter.close()
